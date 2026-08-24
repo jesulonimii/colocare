@@ -1,0 +1,70 @@
+services:
+  database:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: colocare
+      POSTGRES_USER: colocare
+      POSTGRES_PASSWORD: colocare
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres18_cluster_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U colocare -d colocare"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  recommender:
+    build:
+      context: .
+      dockerfile: apps/recommender/Dockerfile
+    ports:
+      - "8000:8000"
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+  api:
+    image: colocare-api-dev
+    build:
+      context: .
+      dockerfile: apps/api/Dev.Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/api:/workspace/apps/api
+      - /workspace/apps/api/node_modules
+    environment:
+      PORT: 3001
+      NODE_ENV: development
+      DATABASE_URL: postgres://colocare:colocare@database:5432/colocare
+      RECOMMENDER_URL: http://recommender:8000
+
+      REDIS_HOST: redis
+      JWT_SECRET: colocare-development-secret
+    depends_on:
+      database:
+        condition: service_healthy
+      recommender:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  web:
+    image: colocare-web-dev
+    build:
+      context: .
+      dockerfile: apps/web/Dev.Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/web:/workspace/apps/web
+      - /workspace/apps/web/node_modules
+    environment:
+      API_PROXY_TARGET: http://api:3001
+    depends_on:
+      - api
+
+volumes:
+  postgres18_cluster_data:

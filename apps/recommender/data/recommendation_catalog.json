@@ -1,0 +1,51 @@
+{
+	"hydration": {
+		"category": "Hydration",
+		"title": "Support steady hydration",
+		"detail": "Build regular fluids into your day and follow any fluid advice from your oncology team.",
+		"goals": [
+			{ "id": "three-cups", "title": "Drink three cups of water before lunch", "category": "Hydration" },
+			{ "id": "refill-bottle", "title": "Refill your water bottle once today", "category": "Hydration" }
+		]
+	},
+	"movement": {
+		"category": "Movement",
+		"title": "Make movement manageable",
+		"detail": "Choose a gentle activity at a pace that feels safe; discuss changes in activity with your care team.",
+		"goals": [
+			{ "id": "ten-minute-walk", "title": "Take a gentle 10-minute walk", "category": "Movement" },
+			{ "id": "stretch", "title": "Do five minutes of comfortable stretching", "category": "Movement" }
+		]
+	},
+	"rest": {
+		"category": "Rest & stress",
+		"title": "Protect rest and recovery",
+		"detail": "Try a consistent wind-down routine and mention persistent sleep or stress concerns to your clinician.",
+		"goals": [
+			{ "id": "wind-down", "title": "Start a screen-free wind-down 30 minutes before bed", "category": "Rest" },
+			{ "id": "breathing", "title": "Take five slow breathing breaks today", "category": "Rest" }
+		]
+	},
+	"nutrition": {
+		"category": "Nutrition",
+		"title": "Plan nourishing meals",
+		"detail": "Use foods you tolerate well and ask a dietitian or oncology team for personalised bowel-symptom advice.",
+		"goals": [
+			{ "id": "banana", "title": "Eat a banana or another tolerated fruit today", "category": "Nutrition" },
+			{ "id": "vegetable", "title": "Add one tolerated vegetable to a meal", "category": "Nutrition" }
+		]
+	},
+	"maintenance": {
+		"category": "Wellbeing",
+		"title": "Continue your healthy routine",
+		"detail": "Keep tracking the habits that are working and bring questions to your next care visit.",
+		"goals": [
+			{
+				"id": "food-note",
+				"title": "Write down one food or habit that felt good today",
+				"category": "Nutrition"
+			},
+			{ "id": "short-walk", "title": "Take a comfortable 10-minute walk", "category": "Movement" }
+		]
+	}
+}

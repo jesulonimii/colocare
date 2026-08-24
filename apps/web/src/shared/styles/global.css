@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+	--color-ink: #17352d;
+	--color-moss: #2d6a4f;
+	--color-sage: #e4f0e7;
+	--color-mist: #f7f8f4;
+	--color-sun: #f4b942;
+	--font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+* {
+	box-sizing: border-box;
+}
+body {
+	margin: 0;
+	background: #f7f8f4;
+	color: #17352d;
+}
+button,
+input,
+select {
+	font: inherit;
+}
+button:not(:disabled),
+input[type="checkbox"]:not(:disabled),
+select:not(:disabled) {
+	cursor: pointer;
+}
+button:not(:disabled) {
+	transition:
+		transform 150ms ease,
+		opacity 150ms ease;
+}
+button:not(:disabled):hover {
+	opacity: 0.85;
+}
+button:not(:disabled):active {
+	transform: scale(0.99);
+}
+.dark {
+	color-scheme: dark;
+}
+.dark body {
+	background: #0b0b0c;
+	color: #f5f5f5;
+}
+.dark .bg-mist {
+	background-color: #0b0b0c;
+}
+.dark .bg-white {
+	background-color: #171719;
+}
+.dark .bg-sage {
+	background-color: #262629;
+}
+.dark .border-sage {
+	border-color: #3d3d42;
+}
+.dark .text-ink {
+	color: #f5f5f5;
+}
+.dark .text-slate-500 {
+	color: #a8a8ae;
+}
+.dark .text-slate-600,
+.dark .text-slate-700 {
+	color: #d1d1d6;
+}
+.dark input,
+.dark select,
+.dark textarea {
+	color: #f5f5f5;
+}
+.dark .bg-amber-50 {
+	background-color: #342811;
+}
+.dark .text-amber-900 {
+	color: #fde8a9;
+}

@@ -1,0 +1,14 @@
+{
+	"version": "knn-lifestyle-v0.1",
+	"records": [
+		{ "features": [3, 20, 5.5, 4, 2, 2, 2], "label": "hydration" },
+		{ "features": [4, 35, 6, 3, 2, 2, 2], "label": "hydration" },
+		{ "features": [8, 150, 7.5, 2, 3, 3, 3], "label": "maintenance" },
+		{ "features": [6, 90, 7, 3, 3, 2, 2], "label": "movement" },
+		{ "features": [5, 45, 6.5, 4, 2, 2, 2], "label": "rest" },
+		{ "features": [7, 120, 7.5, 2, 3, 3, 3], "label": "maintenance" },
+		{ "features": [4, 75, 8, 5, 2, 3, 2], "label": "rest" },
+		{ "features": [6, 110, 6.5, 3, 3, 2, 3], "label": "movement" },
+		{ "features": [3, 60, 5.5, 4, 2, 2, 2], "label": "nutrition" }
+	]
+}
