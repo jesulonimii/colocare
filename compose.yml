@@ -1,0 +1,4 @@
+include:
+  - path: apps/recommender/compose.yml
+  - path: apps/api/compose.yml
+  - path: apps/web/compose.yml

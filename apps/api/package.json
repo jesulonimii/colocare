@@ -8,6 +8,7 @@
 		"build": "tsc -p tsconfig.json",
 		"check": "tsc --noEmit",
 		"migrate": "kysely migrate:latest",
+		"migrate:production": "node dist/database/migrate.js",
 		"db:codegen": "kysely-codegen --dialect postgres --camel-case --out-file src/database/db.types.ts"
 	},
 	"dependencies": {

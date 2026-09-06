@@ -1,0 +1,15 @@
+services:
+  web:
+    image: colocare-web-dev
+    build:
+      context: ../..
+      dockerfile: apps/web/Dev.Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/workspace/apps/web
+      - /workspace/apps/web/node_modules
+    environment:
+      API_PROXY_TARGET: http://api:3001
+    depends_on:
+      - api

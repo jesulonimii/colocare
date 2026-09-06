@@ -1,0 +1,43 @@
+services:
+  database:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: colocare
+      POSTGRES_USER: colocare
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the VPS .env file}
+    volumes:
+      - postgres18_cluster_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U colocare -d colocare"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+  redis:
+    image: redis:7-alpine
+  recommender:
+    image: ${RECOMMENDER_IMAGE:?Set RECOMMENDER_IMAGE before deploying}
+  api:
+    image: ${API_IMAGE:?Set API_IMAGE before deploying}
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgres://colocare:${POSTGRES_PASSWORD}@database:5432/colocare
+      RECOMMENDER_URL: http://recommender:8000
+      REDIS_HOST: redis
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the VPS .env file}
+    depends_on:
+      database:
+        condition: service_healthy
+      recommender:
+        condition: service_started
+      redis:
+        condition: service_started
+  web:
+    image: ${WEB_IMAGE:?Set WEB_IMAGE before deploying}
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres18_cluster_data:
