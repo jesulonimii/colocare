@@ -90,7 +90,7 @@ jobs:
 
                       echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
-                      cd apps
+                      cd /home/devops/apps
 
                       just stacks "$STACK_NAME" api --pull
                       just stacks "$STACK_NAME" web --pull
