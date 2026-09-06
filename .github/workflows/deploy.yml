@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: 🚀 Build and Deploy
 
 on:
   push:
@@ -13,8 +13,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+  GHCR_OWNER: ${{ github.repository_owner }}
+  IMAGE_PREFIX: colocare
+  IMAGE_TAG: main
+  STACK_NAME: colocare
 
 jobs:
   lint-and-typecheck:
@@ -22,13 +24,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-
-      - name: Enable Corepack
-        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -53,9 +55,10 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
-      - uses: docker/login-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -65,40 +68,38 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/colocare-${{ matrix.name }}:${{ github.sha }}
-            ${{ env.IMAGE_PREFIX }}/colocare-${{ matrix.name }}:main
+          tags: ghcr.io/${{ env.GHCR_OWNER }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
   deploy:
     needs: build-and-push
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     environment: production
-    env:
-      VPS_COMPOSE_FILE: ${{ vars.VPS_COMPOSE_FILE }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Update the production compose file
-        run: |
-          test -n "$VPS_COMPOSE_FILE"
-          install -D -m 644 compose.prod.yml "$VPS_COMPOSE_FILE"
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
+      - name: Pull, migrate, and restart the built services
+        uses: appleboy/ssh-action@v1.2.0
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          envs: GHCR_TOKEN,GHCR_USER,STACK_NAME
+          script: |
+            set -euo pipefail
 
-      - name: Pull, migrate, and start the stack
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+            just stacks "$STACK_NAME" api --pull
+            just stacks "$STACK_NAME" web --pull
+            just stacks "$STACK_NAME" recommender --pull
+
+            just stacks "$STACK_NAME" api --run "node --run migrate"
+
+            just stacks "$STACK_NAME" api --restart
+            just stacks "$STACK_NAME" web --restart
+            just stacks "$STACK_NAME" recommender --restart
         env:
-          API_IMAGE: ${{ env.IMAGE_PREFIX }}/colocare-api:${{ github.sha }}
-          WEB_IMAGE: ${{ env.IMAGE_PREFIX }}/colocare-web:${{ github.sha }}
-          RECOMMENDER_IMAGE: ${{ env.IMAGE_PREFIX }}/colocare-recommender:${{ github.sha }}
-        run: |
-          docker compose -f "$VPS_COMPOSE_FILE" pull
-          docker compose -f "$VPS_COMPOSE_FILE" up -d database redis recommender
-          docker compose -f "$VPS_COMPOSE_FILE" run --rm api node dist/database/migrate.js
-          docker compose -f "$VPS_COMPOSE_FILE" up -d --remove-orphans
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          STACK_NAME: ${{ env.STACK_NAME }}
