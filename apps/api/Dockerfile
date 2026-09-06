@@ -11,7 +11,8 @@ RUN pnpm --filter @colocare/api deploy --legacy --prod /out
 FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=80
 COPY --from=build /out ./
-EXPOSE 3001
+EXPOSE 80
 # App and migrations run from TypeScript source via tsx.
 CMD ["node", "--run", "start"]

@@ -8,7 +8,7 @@ RUN pnpm install --frozen-lockfile=false
 COPY apps/web apps/web
 RUN pnpm --filter @colocare/web build
 
-FROM nginx:1.27-alpine
-COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /workspace/apps/web/dist /usr/share/nginx/html
+FROM caddy:2-alpine
+COPY apps/web/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /workspace/apps/web/dist /usr/share/caddy
 EXPOSE 80

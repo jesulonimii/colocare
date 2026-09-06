@@ -1,0 +1,15 @@
+:80 {
+	root * /usr/share/caddy
+	encode gzip
+
+	# Forward API calls to the api service.
+	handle /api/* {
+		reverse_proxy api:80
+	}
+
+	# SPA fallback: serve index.html for unknown routes.
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+}
