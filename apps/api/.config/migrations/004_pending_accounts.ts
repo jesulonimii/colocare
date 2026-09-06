@@ -1,5 +1,5 @@
 import { type Kysely, sql } from "kysely"
-import type { Database } from "../index.js"
+import type { Database } from "../../src/database/index.js"
 
 export async function up(db: Kysely<Database>) {
 	await sql`ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('pending', 'oncologist', 'caregiver', 'patient', 'relative'))`.execute(
