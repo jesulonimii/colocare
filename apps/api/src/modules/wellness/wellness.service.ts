@@ -39,7 +39,13 @@ type GeneratedRecommendation = {
 	tone?: "green" | "amber" | "blue"
 	goals?: GeneratedGoal[]
 }
-type GeneratedPlan = { modelVersion: string; items: GeneratedRecommendation[]; reason?: string; triage?: "urgent" | "routine"; progression?: "progress" | "maintain" | "ease" }
+type GeneratedPlan = {
+	modelVersion: string
+	items: GeneratedRecommendation[]
+	reason?: string
+	triage?: "urgent" | "routine"
+	progression?: "progress" | "maintain" | "ease"
+}
 const RED_FLAGS = new Set(["Blood in stool", "Unexplained weight loss", "Persistent bloating"])
 const urgentPlan = (symptoms: string[]): GeneratedPlan => ({
 	modelVersion: "safety-screen-v1",
@@ -48,15 +54,24 @@ const urgentPlan = (symptoms: string[]): GeneratedPlan => ({
 	triage: "urgent",
 })
 
-async function modelPlan(assessment: WellnessDto["assessment"], profile?: Record<string, unknown>, history?: Record<string, number>, starter = false) {
+async function modelPlan(
+	assessment: WellnessDto["assessment"],
+	profile?: Record<string, unknown>,
+	history?: Record<string, number>,
+	starter = false
+) {
 	const response = await fetch(
 		`${process.env.RECOMMENDER_URL ?? "http://localhost:8000"}${starter ? "/starter-plan" : "/recommend"}`,
 		starter
 			? undefined
-			: { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ profile, assessment, history }) }
+			: {
+					method: "POST",
+					headers: { "content-type": "application/json" },
+					body: JSON.stringify({ profile, assessment, history }),
+				}
 	)
 	if (!response.ok) throw new Error("Recommendation service unavailable")
-	return coachPlan(await response.json() as GeneratedPlan)
+	return coachPlan((await response.json()) as GeneratedPlan)
 }
 function coachPlan(plan: GeneratedPlan): GeneratedPlan {
 	if (plan.progression === "maintain" || !plan.progression) return plan
@@ -66,7 +81,13 @@ function coachPlan(plan: GeneratedPlan): GeneratedPlan {
 		items: plan.items.map((item) =>
 			item.id !== "movement"
 				? item
-				: { ...item, goals: (item.goals ?? []).map((goal) => ({ ...goal, title: goal.title.replace(/\d+-minute/, `${minutes}-minute`) })) }
+				: {
+						...item,
+						goals: (item.goals ?? []).map((goal) => ({
+							...goal,
+							title: goal.title.replace(/\d+-minute/, `${minutes}-minute`),
+						})),
+					}
 		),
 	}
 }
@@ -107,8 +128,17 @@ const patientProfile = (userId: string) =>
 	db
 		.selectFrom("patientProfiles")
 		.select([
-			"dateOfBirth", "sex", "treatmentStatus", "diseaseStage", "tumorLocation", "surgeryPerformed",
-			"chemotherapyReceived", "chemotherapyCycles", "chemotherapyTiming", "radiotherapyReceived", "survivorshipSymptoms",
+			"dateOfBirth",
+			"sex",
+			"treatmentStatus",
+			"diseaseStage",
+			"tumorLocation",
+			"surgeryPerformed",
+			"chemotherapyReceived",
+			"chemotherapyCycles",
+			"chemotherapyTiming",
+			"radiotherapyReceived",
+			"survivorshipSymptoms",
 		])
 		.where("userId", "=", userId)
 		.executeTakeFirst()
@@ -122,16 +152,29 @@ const asModelProfile = (profile: Awaited<ReturnType<typeof patientProfile>>): Re
 	radiotherapyReceived: profile?.radiotherapyReceived ?? false,
 	survivorshipSymptoms: (profile?.survivorshipSymptoms as string[] | undefined) ?? [],
 })
-const fatigueScore = (value: string) => ({ Low: 1, Moderate: 2, High: 3 }[value] ?? 2)
+const fatigueScore = (value: string) => ({ Low: 1, Moderate: 2, High: 3 })[value] ?? 2
 async function recoveryHistory(userId: string, current: WellnessDto["assessment"]) {
 	const from = new Date()
 	from.setUTCDate(from.getUTCDate() - 7)
 	const [logs, actions] = await Promise.all([
-		db.selectFrom("dailyAssessments").select("data").where("userId", "=", userId).where("logDate", ">=", from).orderBy("logDate", "desc").limit(7).execute(),
-		db.selectFrom("weeklyPlanActionLogs").select("status").where("userId", "=", userId).where("actionDate", ">=", from).execute(),
+		db
+			.selectFrom("dailyAssessments")
+			.select("data")
+			.where("userId", "=", userId)
+			.where("logDate", ">=", from)
+			.orderBy("logDate", "desc")
+			.limit(7)
+			.execute(),
+		db
+			.selectFrom("weeklyPlanActionLogs")
+			.select("status")
+			.where("userId", "=", userId)
+			.where("actionDate", ">=", from)
+			.execute(),
 	])
 	const previous = logs.slice(1).map((log) => log.data as WellnessDto["assessment"])
-	const average = (values: number[]) => values.length ? values.reduce((total, value) => total + value, 0) / values.length : 0
+	const average = (values: number[]) =>
+		values.length ? values.reduce((total, value) => total + value, 0) / values.length : 0
 	const completed = actions.filter((action) => action.status === "completed").length
 	const attempted = completed + actions.filter((action) => action.status === "skipped").length
 	return {
@@ -143,7 +186,19 @@ async function recoveryHistory(userId: string, current: WellnessDto["assessment"
 export async function getProfile(auth: AuthContext) {
 	const profile = await patientProfile(auth.userId)
 	if (!profile) return null
-	return { ...profile, dateOfBirth: dateKey(profile.dateOfBirth), survivorshipSymptoms: profile.survivorshipSymptoms as string[] }
+	// Profiles created before migration 012 have null treatment fields, so fill the form defaults.
+	return {
+		...profile,
+		dateOfBirth: dateKey(profile.dateOfBirth),
+		diseaseStage: profile.diseaseStage ?? "Unknown",
+		tumorLocation: profile.tumorLocation ?? "Unknown",
+		surgeryPerformed: profile.surgeryPerformed ?? false,
+		chemotherapyReceived: profile.chemotherapyReceived ?? false,
+		chemotherapyCycles: profile.chemotherapyCycles ?? 0,
+		chemotherapyTiming: profile.chemotherapyTiming ?? "Not applicable",
+		radiotherapyReceived: profile.radiotherapyReceived ?? false,
+		survivorshipSymptoms: (profile.survivorshipSymptoms as string[] | null) ?? [],
+	}
 }
 export async function saveProfile(auth: AuthContext, data: WellnessDto["profile"]) {
 	const row = await db
@@ -296,7 +351,12 @@ export async function saveDailyLog(auth: AuthContext, data: WellnessDto["dailyLo
 	await Promise.all([
 		queueWeeklyAchievement(auth.userId),
 		queueWeeklyPlan(auth.userId),
-		insertPlan(auth.userId, startOfWeek(date), "model", await modelPlan(assessment, asModelProfile(profile), history)),
+		insertPlan(
+			auth.userId,
+			startOfWeek(date),
+			"model",
+			await modelPlan(assessment, asModelProfile(profile), history)
+		),
 	])
 	return getDailyLog(auth, date)
 }

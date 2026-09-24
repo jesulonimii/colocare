@@ -37,12 +37,24 @@ export function DailyLogForm({ date, onSaved }: { date: string; onSaved?: () => 
 	const save = useSaveDailyLog()
 	const form = useForm<DailyLogValues>({ defaultValues: { ...initial, symptoms: "" } })
 	useEffect(() => {
-		form.reset(data ? { ...data, symptoms: data.symptoms.join(", ") } : { ...initial, symptoms: "" })
+		form.reset(data ? { ...data, symptoms: (data.symptoms ?? []).join(", ") } : { ...initial, symptoms: "" })
 	}, [data, form])
 	return (
 		<FormView
 			form={form}
-			onSubmit={form.handleSubmit(({ symptoms, ...values }) => save.mutate({ ...values, symptoms: symptoms.split(",").map((item) => item.trim()).filter(Boolean), date }, { onSuccess: onSaved }))}
+			onSubmit={form.handleSubmit(({ symptoms, ...values }) =>
+				save.mutate(
+					{
+						...values,
+						symptoms: symptoms
+							.split(",")
+							.map((item) => item.trim())
+							.filter(Boolean),
+						date,
+					},
+					{ onSuccess: onSaved }
+				)
+			)}
 			className="mt-5 grid gap-3 sm:grid-cols-2"
 		>
 			{fields.map((field) => (
@@ -65,7 +77,12 @@ export function DailyLogForm({ date, onSaved }: { date: string; onSaved?: () => 
 					)}
 				</div>
 			))}
-			<FormInput name="symptoms" label="New or current symptoms" hint="(comma-separated; blood in stool, unexplained weight loss, or persistent bloating need urgent care)" className="sm:col-span-2" />
+			<FormInput
+				name="symptoms"
+				label="New or current symptoms"
+				hint="(comma-separated; blood in stool, unexplained weight loss, or persistent bloating need urgent care)"
+				className="sm:col-span-2"
+			/>
 			<AppButton className="sm:col-span-2" disabled={save.isPending}>
 				{save.isPending ? "Saving daily log…" : "Save daily log"}
 			</AppButton>

@@ -129,16 +129,42 @@ export default function Onboarding() {
 								<option>Long-term survivor</option>
 							</FormSelect>
 							<FormSelect name="diseaseStage" label="Stage at diagnosis">
-								<option>Early</option><option>Locally advanced</option><option>Metastatic</option><option>Unknown</option>
+								<option>Early</option>
+								<option>Locally advanced</option>
+								<option>Metastatic</option>
+								<option>Unknown</option>
 							</FormSelect>
 							<FormSelect name="tumorLocation" label="Tumour location">
-								<option>Right colon</option><option>Left colon</option><option>Rectum</option><option>Unknown</option>
+								<option>Right colon</option>
+								<option>Left colon</option>
+								<option>Rectum</option>
+								<option>Unknown</option>
 							</FormSelect>
-							<FormSelect name="surgeryPerformed" label="Was surgery performed?"><option value="no">No</option><option value="yes">Yes</option></FormSelect>
-							<FormSelect name="chemotherapyReceived" label="Was chemotherapy received?"><option value="no">No</option><option value="yes">Yes</option></FormSelect>
-							<FormInput name="chemotherapyCycles" label="Chemotherapy cycles" type="number" min={0} max={40} />
-							<FormSelect name="chemotherapyTiming" label="Chemotherapy timing"><option>Not applicable</option><option>Before surgery</option><option>After surgery</option><option>Both</option></FormSelect>
-							<FormSelect name="radiotherapyReceived" label="Was radiotherapy received?"><option value="no">No</option><option value="yes">Yes</option></FormSelect>
+							<FormSelect name="surgeryPerformed" label="Was surgery performed?">
+								<option value="no">No</option>
+								<option value="yes">Yes</option>
+							</FormSelect>
+							<FormSelect name="chemotherapyReceived" label="Was chemotherapy received?">
+								<option value="no">No</option>
+								<option value="yes">Yes</option>
+							</FormSelect>
+							<FormInput
+								name="chemotherapyCycles"
+								label="Chemotherapy cycles"
+								type="number"
+								min={0}
+								max={40}
+							/>
+							<FormSelect name="chemotherapyTiming" label="Chemotherapy timing">
+								<option>Not applicable</option>
+								<option>Before surgery</option>
+								<option>After surgery</option>
+								<option>Both</option>
+							</FormSelect>
+							<FormSelect name="radiotherapyReceived" label="Was radiotherapy received?">
+								<option value="no">No</option>
+								<option value="yes">Yes</option>
+							</FormSelect>
 							<FormInput
 								name="treatmentHistory"
 								label="Other treatment notes"
