@@ -1,11 +1,33 @@
 import { z } from "zod"
 
-const profile = z.object({
-	name: z.string().min(2).max(80),
-	age: z.number().int().min(18).max(120),
-	treatmentStage: z.enum(["Post-treatment", "In treatment", "Long-term survivor"]),
-	caregiverName: z.string().max(80).optional(),
-})
+const profile = z
+	.object({
+		dateOfBirth: z.iso.date(),
+		sex: z.string().min(1).max(30),
+		treatmentStatus: z.enum(["Post-treatment", "In treatment", "Long-term survivor"]),
+		diseaseStage: z.enum(["Early", "Locally advanced", "Metastatic", "Unknown"]),
+		tumorLocation: z.enum(["Right colon", "Left colon", "Rectum", "Unknown"]),
+		surgeryPerformed: z.boolean(),
+		chemotherapyReceived: z.boolean(),
+		chemotherapyCycles: z.number().int().min(0).max(40),
+		chemotherapyTiming: z.enum(["Before surgery", "After surgery", "Both", "Not applicable"]),
+		radiotherapyReceived: z.boolean(),
+		survivorshipSymptoms: z.array(z.string().min(1).max(80)),
+	})
+	.superRefine((data, context) => {
+		if (!data.chemotherapyReceived && data.chemotherapyCycles !== 0)
+			context.addIssue({
+				code: "custom",
+				path: ["chemotherapyCycles"],
+				message: "Cycles must be zero when chemotherapy was not received.",
+			})
+		if (!data.chemotherapyReceived && data.chemotherapyTiming !== "Not applicable")
+			context.addIssue({
+				code: "custom",
+				path: ["chemotherapyTiming"],
+				message: "Select not applicable when chemotherapy was not received.",
+			})
+	})
 
 const assessment = z.object({
 	waterGlasses: z.number().int().min(0).max(20),
@@ -15,6 +37,7 @@ const assessment = z.object({
 	appetite: z.enum(["Poor", "Fair", "Good"]),
 	bowelComfort: z.enum(["Comfortable", "Occasional discomfort", "Persistent discomfort"]),
 	fatigue: z.enum(["Low", "Moderate", "High"]),
+	symptoms: z.array(z.string().min(1).max(80)),
 })
 
 const createGoal = z.object({

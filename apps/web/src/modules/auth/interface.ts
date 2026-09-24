@@ -14,6 +14,13 @@ export type OnboardingPayload = {
 		dateOfBirth: string
 		sex: string
 		treatmentStatus: "In treatment" | "Post-treatment" | "Long-term survivor"
+		diseaseStage: "Early" | "Locally advanced" | "Metastatic" | "Unknown"
+		tumorLocation: "Right colon" | "Left colon" | "Rectum" | "Unknown"
+		surgeryPerformed: boolean
+		chemotherapyReceived: boolean
+		chemotherapyCycles: number
+		chemotherapyTiming: "Before surgery" | "After surgery" | "Both" | "Not applicable"
+		radiotherapyReceived: boolean
 		treatmentHistory: string[]
 		survivorshipSymptoms: string[]
 		consentGiven: true

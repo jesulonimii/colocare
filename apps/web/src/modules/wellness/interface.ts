@@ -1,8 +1,15 @@
 export type Profile = {
-	name: string
-	age: number
-	treatmentStage: "Post-treatment" | "In treatment" | "Long-term survivor"
-	caregiverName?: string
+	dateOfBirth: string
+	sex: string
+	treatmentStatus: "Post-treatment" | "In treatment" | "Long-term survivor"
+	diseaseStage: "Early" | "Locally advanced" | "Metastatic" | "Unknown"
+	tumorLocation: "Right colon" | "Left colon" | "Rectum" | "Unknown"
+	surgeryPerformed: boolean
+	chemotherapyReceived: boolean
+	chemotherapyCycles: number
+	chemotherapyTiming: "Before surgery" | "After surgery" | "Both" | "Not applicable"
+	radiotherapyReceived: boolean
+	survivorshipSymptoms: string[]
 }
 
 export type Assessment = {
@@ -13,6 +20,7 @@ export type Assessment = {
 	appetite: "Poor" | "Fair" | "Good"
 	bowelComfort: "Comfortable" | "Occasional discomfort" | "Persistent discomfort"
 	fatigue: "Low" | "Moderate" | "High"
+	symptoms: string[]
 }
 
 export type Goal = {

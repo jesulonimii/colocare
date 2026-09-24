@@ -15,15 +15,25 @@ import {
 	getOverview,
 	getPatientManagement,
 	getPersonalGoals,
+	getProfile,
 	getResources,
 	getWeeklyPlan,
 	saveDailyLog,
+	saveProfile,
 	updateCaregiverTask,
 	updatePersonalGoal,
 	updatePlanAction,
 } from "./wellness.service.js"
 
 export async function wellnessRoutes(app: FastifyInstance) {
+	app.get("/profile", async (request, reply) => {
+		const profile = await getProfile(await requireAuth(request))
+		return profile ?? reply.status(404).send({ message: "Patient profile not found" })
+	})
+	app.put("/profile", async (request, reply) => {
+		const profile = await saveProfile(await requireAuth(request), WellnessSchema.profile.parse(request.body))
+		return profile ?? reply.status(404).send({ message: "Patient profile not found" })
+	})
 	app.get("/overview", async (request, reply) => {
 		const overview = await getOverview(await requireAuth(request))
 		return overview ?? reply.status(401).send({ message: "Your session has expired. Please sign in again." })

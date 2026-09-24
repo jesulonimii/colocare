@@ -29,9 +29,16 @@ export default function Recommendations() {
 				</section>
 			) : (
 				<>
-					<p className="rounded-xl bg-sage p-4 text-sm text-moss">
+					<p
+						className={`rounded-xl p-4 text-sm ${plan.items.length ? "bg-sage text-moss" : "bg-red-50 text-red-800"}`}
+					>
 						<b>Why this plan:</b> {plan.reason}
 					</p>
+					{!plan.items.length && (
+						<p className="text-sm text-slate-600">
+							Do not wait for your next plan. Follow the guidance above and contact your care team.
+						</p>
+					)}
 					<div className="space-y-4">
 						{plan.items.map((item) => {
 							const Icon = icon[item.category as keyof typeof icon] ?? Sparkles

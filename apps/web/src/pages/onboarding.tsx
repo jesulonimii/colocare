@@ -32,6 +32,13 @@ export default function Onboarding() {
 			dateOfBirth: "",
 			sex: "",
 			treatmentStatus: "Post-treatment",
+			diseaseStage: "Unknown",
+			tumorLocation: "Unknown",
+			surgeryPerformed: "no",
+			chemotherapyReceived: "no",
+			chemotherapyCycles: 0,
+			chemotherapyTiming: "Not applicable",
+			radiotherapyReceived: "no",
 			treatmentHistory: "",
 			symptoms: "",
 			consentGiven: false,
@@ -48,6 +55,13 @@ export default function Onboarding() {
 					dateOfBirth: values.dateOfBirth,
 					sex: values.sex,
 					treatmentStatus: values.treatmentStatus,
+					diseaseStage: values.diseaseStage,
+					tumorLocation: values.tumorLocation,
+					surgeryPerformed: values.surgeryPerformed === "yes",
+					chemotherapyReceived: values.chemotherapyReceived === "yes",
+					chemotherapyCycles: values.chemotherapyCycles,
+					chemotherapyTiming: values.chemotherapyTiming,
+					radiotherapyReceived: values.radiotherapyReceived === "yes",
 					treatmentHistory: splitList(values.treatmentHistory),
 					survivorshipSymptoms: splitList(values.symptoms),
 					consentGiven: true as const,
@@ -114,16 +128,53 @@ export default function Onboarding() {
 								<option>Post-treatment</option>
 								<option>Long-term survivor</option>
 							</FormSelect>
+							<FormSelect name="diseaseStage" label="Stage at diagnosis">
+								<option>Early</option>
+								<option>Locally advanced</option>
+								<option>Metastatic</option>
+								<option>Unknown</option>
+							</FormSelect>
+							<FormSelect name="tumorLocation" label="Tumour location">
+								<option>Right colon</option>
+								<option>Left colon</option>
+								<option>Rectum</option>
+								<option>Unknown</option>
+							</FormSelect>
+							<FormSelect name="surgeryPerformed" label="Was surgery performed?">
+								<option value="no">No</option>
+								<option value="yes">Yes</option>
+							</FormSelect>
+							<FormSelect name="chemotherapyReceived" label="Was chemotherapy received?">
+								<option value="no">No</option>
+								<option value="yes">Yes</option>
+							</FormSelect>
+							<FormInput
+								name="chemotherapyCycles"
+								label="Chemotherapy cycles"
+								type="number"
+								min={0}
+								max={40}
+							/>
+							<FormSelect name="chemotherapyTiming" label="Chemotherapy timing">
+								<option>Not applicable</option>
+								<option>Before surgery</option>
+								<option>After surgery</option>
+								<option>Both</option>
+							</FormSelect>
+							<FormSelect name="radiotherapyReceived" label="Was radiotherapy received?">
+								<option value="no">No</option>
+								<option value="yes">Yes</option>
+							</FormSelect>
 							<FormInput
 								name="treatmentHistory"
-								label="Treatment history"
-								hint="(comma-separated)"
+								label="Other treatment notes"
+								hint="(optional, comma-separated)"
 								className="sm:col-span-2"
 							/>
 							<FormInput
 								name="symptoms"
 								label="Current symptoms"
-								hint="(optional, comma-separated)"
+								hint="(comma-separated; include blood in stool, unexplained weight loss, or persistent bloating)"
 								className="sm:col-span-2"
 							/>
 						</div>
@@ -131,7 +182,7 @@ export default function Onboarding() {
 							type="button"
 							className="mt-6"
 							onClick={async () => {
-								if (await form.trigger(["dateOfBirth", "sex", "treatmentHistory"])) setStep(3)
+								if (await form.trigger(["dateOfBirth", "sex", "chemotherapyCycles"])) setStep(3)
 							}}
 						>
 							Continue
