@@ -7,5 +7,9 @@ import { defineConfig } from "vite"
 export default defineConfig({
 	plugins: [react(), tailwindcss(), generouted({ output: "./src/shared/router.ts" })],
 	resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
-	server: { port: 5173, proxy: { "/api": process.env.API_PROXY_TARGET ?? "http://localhost:3001" } },
+	server: {
+		port: 5173,
+		allowedHosts: ["web.colocare.orb.local"],
+		proxy: { "/api": process.env.API_PROXY_TARGET ?? "http://localhost:3001" },
+	},
 })

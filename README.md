@@ -15,7 +15,7 @@ Roles are deliberately split at sign-up: oncologists and caregivers open the end
 
 Patient onboarding captures date of birth, sex, treatment status/history, current survivorship symptoms, and informed consent before the lifestyle assessment begins.
 
-The Python KNN service is a demonstration decision-support model (`apps/recommender`). Its bundled dataset is illustrative only; it must be replaced with approved, de-identified, clinically validated data before any real-world clinical use.
+The Python recommender is a local Random Forest demonstration (`apps/recommender`). Its bundled `data/training.csv` is synthetic, generated for this school project, and is not clinical evidence. To retrain after replacing that CSV with approved, de-identified data, run `cd apps/recommender && python -m app.train`; the service then loads `data/model.joblib`. Without that file it trains from the CSV at startup. The model does not diagnose cancer; direct reports of blood in stool, unexplained weight loss, or persistent bloating suppress lifestyle recommendations and prompt immediate care-team contact.
 
 Run migrations manually inside the API container when you choose:
 

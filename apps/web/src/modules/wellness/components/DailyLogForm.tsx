@@ -15,8 +15,10 @@ const initial: Assessment = {
 	appetite: "Fair",
 	bowelComfort: "Occasional discomfort",
 	fatigue: "Moderate",
+	symptoms: [],
 }
-const fields: { key: keyof Assessment; label: string; options?: string[]; type?: "number" }[] = [
+type DailyLogValues = Omit<Assessment, "symptoms"> & { symptoms: string }
+const fields: { key: Exclude<keyof Assessment, "symptoms">; label: string; options?: string[]; type?: "number" }[] = [
 	{ key: "waterGlasses", label: "Water glasses", type: "number" },
 	{ key: "activityMinutes", label: "Movement minutes", type: "number" },
 	{ key: "sleepHours", label: "Sleep hours", type: "number" },
@@ -33,14 +35,14 @@ const fields: { key: keyof Assessment; label: string; options?: string[]; type?:
 export function DailyLogForm({ date, onSaved }: { date: string; onSaved?: () => void }) {
 	const { data } = useDailyLog(date)
 	const save = useSaveDailyLog()
-	const form = useForm<Assessment>({ defaultValues: initial })
+	const form = useForm<DailyLogValues>({ defaultValues: { ...initial, symptoms: "" } })
 	useEffect(() => {
-		form.reset(data ?? initial)
+		form.reset(data ? { ...data, symptoms: data.symptoms.join(", ") } : { ...initial, symptoms: "" })
 	}, [data, form])
 	return (
 		<FormView
 			form={form}
-			onSubmit={form.handleSubmit((values) => save.mutate({ ...values, date }, { onSuccess: onSaved }))}
+			onSubmit={form.handleSubmit(({ symptoms, ...values }) => save.mutate({ ...values, symptoms: symptoms.split(",").map((item) => item.trim()).filter(Boolean), date }, { onSuccess: onSaved }))}
 			className="mt-5 grid gap-3 sm:grid-cols-2"
 		>
 			{fields.map((field) => (
@@ -63,6 +65,7 @@ export function DailyLogForm({ date, onSaved }: { date: string; onSaved?: () => 
 					)}
 				</div>
 			))}
+			<FormInput name="symptoms" label="New or current symptoms" hint="(comma-separated; blood in stool, unexplained weight loss, or persistent bloating need urgent care)" className="sm:col-span-2" />
 			<AppButton className="sm:col-span-2" disabled={save.isPending}>
 				{save.isPending ? "Saving daily log…" : "Save daily log"}
 			</AppButton>

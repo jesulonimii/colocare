@@ -34,7 +34,7 @@ services:
       PORT: 3001
       NODE_ENV: development
       DATABASE_URL: postgres://colocare:colocare@database:5432/colocare
-      RECOMMENDER_URL: http://recommender:8000
+      RECOMMENDER_URL: http://recommender:80
       REDIS_HOST: redis
       JWT_SECRET: colocare-development-secret
     depends_on:

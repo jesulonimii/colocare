@@ -87,14 +87,21 @@ export interface Goals {
 }
 
 export interface PatientProfiles {
+  chemotherapyCycles: number | null;
+  chemotherapyReceived: boolean | null;
+  chemotherapyTiming: string | null;
   consentGiven: boolean;
   createdAt: Generated<Timestamp>;
   dateOfBirth: Timestamp;
+  diseaseStage: string | null;
   id: string;
+  radiotherapyReceived: boolean | null;
   sex: string;
+  surgeryPerformed: boolean | null;
   survivorshipSymptoms: Json;
   treatmentHistory: Json;
   treatmentStatus: string;
+  tumorLocation: string | null;
   updatedAt: Generated<Timestamp>;
   userId: string;
 }
